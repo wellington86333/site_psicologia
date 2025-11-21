@@ -3,8 +3,106 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wellington Brito PSI - Psicologia Online</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+    <!-- Primary Meta Tags -->
+    <title>Wellington Brito PSI - Psicólogo Online CRP 02/15189 | Terapia para Brasileiros no Brasil e no Exterior
+    </title>
+    <meta name="title" content="Wellington Brito PSI - Psicólogo Online CRP 02/15189">
+    <meta name="description"
+        content="Psicoterapia online em português para brasileiros no Brasil e no exterior. Atendimento psicológico profissional com abordagem psicanalítica, horários flexíveis adaptados ao seu fuso horário e total confidencialidade. CRP 02/15189">
+    <meta name="keywords"
+        content="psicólogo online, psicoterapia online, psicanálise, terapia online, psicólogo brasileiro exterior, psicólogo para brasileiros, saúde mental, ansiedade, depressão, Wellington Brito, CRP 02/15189">
+    <meta name="author" content="Wellington Brito">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="Portuguese">
+    <link rel="canonical" href="https://wellingtonbritopsi.com">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://wellingtonbritopsi.com">
+    <meta property="og:title" content="Wellington Brito PSI - Psicólogo Online CRP 02/15189">
+    <meta property="og:description"
+        content="Psicoterapia online em português para brasileiros no Brasil e no exterior. Atendimento profissional com abordagem psicanalítica e horários flexíveis.">
+    <meta property="og:image" content="https://wellingtonbritopsi.com/wellington-brito.jpg">
+    <meta property="og:locale" content="pt_BR">
+    <meta property="og:site_name" content="Wellington Brito PSI">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://wellingtonbritopsi.com">
+    <meta property="twitter:title" content="Wellington Brito PSI - Psicólogo Online CRP 02/15189">
+    <meta property="twitter:description"
+        content="Psicoterapia online em português para brasileiros no Brasil e no exterior.">
+    <meta property="twitter:image" content="https://wellingtonbritopsi.com/wellington-brito.jpg">
+
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#2563eb">
+    <meta name="msapplication-TileColor" content="#2563eb">
+
+    <!-- Mobile Web App Capable -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Wellington Brito PSI">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Psychologist",
+      "name": "Wellington Brito",
+      "image": "https://wellingtonbritopsi.com/wellington-brito.jpg",
+      "url": "https://wellingtonbritopsi.com",
+      "telephone": "+447512130453",
+      "email": "wellington.brito@rocketmail.com",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "BR"
+      },
+      "priceRange": "$$",
+      "serviceType": "Online Psychotherapy",
+      "areaServed": [
+        {
+          "@type": "Country",
+          "name": "Brazil"
+        },
+        {
+          "@type": "Country",
+          "name": "Portugal"
+        },
+        {
+          "@type": "Country",
+          "name": "United States"
+        },
+        {
+          "@type": "Country",
+          "name": "United Kingdom"
+        }
+      ],
+      "availableLanguage": "Portuguese",
+      "description": "Psicólogo Clínico (CRP 02/15189) especializado em atendimentos individuais com abordagem psicanalítica. Atendimento online para brasileiros no Brasil e no exterior.",
+      "hasCredential": {
+        "@type": "EducationalOccupationalCredential",
+        "credentialCategory": "Professional License",
+        "recognizedBy": {
+          "@type": "Organization",
+          "name": "Conselho Federal de Psicologia"
+        },
+        "credentialId": "CRP 02/15189"
+      },
+      "knowsAbout": [
+        "Psychoanalysis",
+        "Anxiety Treatment",
+        "Depression Treatment",
+        "Emotional Support",
+        "Mental Health"
+      ],
+      "sameAs": [
+        "https://api.whatsapp.com/send/?phone=447512130453"
+      ]
+    }
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -40,6 +138,125 @@
         .scrollbar-hide {
             -ms-overflow-style: none;
             scrollbar-width: none;
+        }
+
+        /* Smooth scroll behavior */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Custom animations */
+        @keyframes blob {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            25% {
+                transform: translate(20px, -50px) scale(1.1);
+            }
+
+            50% {
+                transform: translate(-20px, 20px) scale(0.9);
+            }
+
+            75% {
+                transform: translate(50px, 50px) scale(1.05);
+            }
+        }
+
+        .animate-blob {
+            animation: blob 7s infinite;
+        }
+
+        .animation-delay-2000 {
+            animation-delay: 2s;
+        }
+
+        .animation-delay-4000 {
+            animation-delay: 4s;
+        }
+
+        /* Screen reader only */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        .sr-only:focus,
+        .sr-only:focus-within {
+            position: static;
+            width: auto;
+            height: auto;
+            padding: 1rem;
+            margin: 0;
+            overflow: visible;
+            clip: auto;
+            white-space: normal;
+            background-color: #2563eb;
+            color: white;
+            z-index: 9999;
+        }
+
+        /* Focus visible for accessibility */
+        *:focus-visible {
+            outline: 3px solid #3b82f6;
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+
+        /* Reduce motion for users who prefer it */
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+
+        /* Loading spinner */
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+
+        /* Fade in animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            * {
+                border-color: currentColor !important;
+            }
         }
     </style>
 </head>

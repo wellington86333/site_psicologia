@@ -43,11 +43,20 @@ export default function App() {
   const headerOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0.9]);
 
   useEffect(() => {
+    let timeoutId;
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      if (!timeoutId) {
+        timeoutId = setTimeout(() => {
+          setScrolled(window.scrollY > 20);
+          timeoutId = null;
+        }, 100);
+      }
     };
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (timeoutId) clearTimeout(timeoutId);
+    };
   }, []);
 
   useEffect(() => {
@@ -70,52 +79,54 @@ export default function App() {
     }
   }, [isChatOpen, chatMessages]);
 
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  const toggleMenu = React.useCallback(() => setIsMenuOpen(prev => !prev), []);
 
-  const handleAnswer = (index, answer) => {
-    const newAnswers = [...answers];
-    newAnswers[index] = answer;
-    setAnswers(newAnswers);
-  };
+  const handleAnswer = React.useCallback((index, answer) => {
+    setAnswers(prev => {
+      const newAnswers = [...prev];
+      newAnswers[index] = answer;
+      return newAnswers;
+    });
+  }, []);
 
-  const nextQuestion = () => {
-    if (currentQuestion < 7) setCurrentQuestion(prev => prev + 1);
-  };
+  const nextQuestion = React.useCallback(() => {
+    setCurrentQuestion(prev => (prev < 7 ? prev + 1 : prev));
+  }, []);
 
-  const prevQuestion = () => {
-    if (currentQuestion > 0) setCurrentQuestion(prev => prev - 1);
-  };
+  const prevQuestion = React.useCallback(() => {
+    setCurrentQuestion(prev => (prev > 0 ? prev - 1 : prev));
+  }, []);
 
-  const calculateResult = () => {
+  const calculateResult = React.useCallback(() => {
     const score = answers.reduce((sum, ans) => sum + (ans || 0), 0);
     if (score <= 10) return "Seu bem-estar emocional está em um bom nível!";
     if (score <= 20) return "Você pode se beneficiar de algumas estratégias de autocuidado.";
     return "Recomendamos conversar com um profissional para apoio especializado.";
-  };
+  }, [answers]);
 
-  const submitTest = () => {
+  const submitTest = React.useCallback(() => {
     if (answers.some(ans => ans === null)) {
       alert("Por favor, responda todas as perguntas.");
       return;
     }
     setShowResult(true);
-  };
+  }, [answers]);
 
-  const resetTest = () => {
+  const resetTest = React.useCallback(() => {
     setAnswers(Array(8).fill(null));
     setCurrentQuestion(0);
     setShowResult(false);
-  };
+  }, []);
 
-  const toggleFaq = (index) => {
-    setActiveFaq(activeFaq === index ? null : index);
-  };
+  const toggleFaq = React.useCallback((index) => {
+    setActiveFaq(prev => (prev === index ? null : index));
+  }, []);
 
-  const toggleService = (index) => {
-    setActiveService(activeService === index ? null : index);
-  };
+  const toggleService = React.useCallback((index) => {
+    setActiveService(prev => (prev === index ? null : index));
+  }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = React.useCallback((e) => {
     e.preventDefault();
     if (!formState.name || !formState.email || !formState.message) {
       alert("Por favor, preencha todos os campos.");
@@ -124,9 +135,9 @@ export default function App() {
     setIsSubmitted(true);
     setFormState({ name: '', email: '', message: '' });
     setTimeout(() => setIsSubmitted(false), 5000);
-  };
+  }, [formState]);
 
-  const handleChatSend = (e) => {
+  const handleChatSend = React.useCallback((e) => {
     e.preventDefault();
     if (!formState.message.trim()) return;
     const userMessage = formState.message;
@@ -146,7 +157,7 @@ export default function App() {
       }
       setIsTyping(false);
     }, 1500);
-  };
+  }, [formState]);
 
   const navItems = [
     { id: 'about', label: 'Sobre' },
@@ -217,6 +228,9 @@ export default function App() {
 
   return (
     <div className="font-sans min-h-screen bg-gradient-to-b from-blue-50 to-white overflow-x-hidden">
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded-md z-50 transition-all duration-300">
+        Pular para o conteúdo principal
+      </a>
       {/* WhatsApp Floating Button */}
       <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="fixed bottom-6 right-6 z-50 bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 transition-all duration-300 animate-pulse hover:animate-none" aria-label="WhatsApp">
         <WhatsApp className="w-7 h-7" />
@@ -257,8 +271,8 @@ export default function App() {
                 </div>
                 <form onSubmit={handleChatSend} className="p-3 border-t border-gray-100 bg-white">
                   <div className="flex gap-2">
-                    <input type="text" value={formState.message} onChange={e => setFormState({ ...formState, message: e.target.value })} placeholder="Digite sua mensagem..." className="flex-1 p-2 px-4 border border-gray-200 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none" />
-                    <button type="submit" disabled={!formState.message.trim()} className={`p-2 rounded-full ${formState.message.trim() ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}><Send className="w-5 h-5" /></button>
+                    <input type="text" aria-label="Digite sua mensagem" value={formState.message} onChange={e => setFormState({ ...formState, message: e.target.value })} placeholder="Digite sua mensagem..." className="flex-1 p-2 px-4 border border-gray-200 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none" />
+                    <button type="submit" aria-label="Enviar mensagem" disabled={!formState.message.trim()} className={`p-2 rounded-full ${formState.message.trim() ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}><Send className="w-5 h-5" /></button>
                   </div>
                 </form>
               </motion.div>
@@ -289,20 +303,22 @@ export default function App() {
           </nav>
           <button onClick={toggleMenu} className={`md:hidden ${scrolled ? 'text-gray-800' : 'text-white'}`} aria-label={isMenuOpen ? "Fechar menu" : "Abrir menu"}>{isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}</button>
         </div>
-        {isMenuOpen && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="md:hidden bg-white border-t mt-2 pb-4">
-            <div className="container mx-auto px-4 py-4 space-y-4">
-              {navItems.map(item => (
-                <a key={item.id} href={`#${item.id}`} onClick={() => setIsMenuOpen(false)} className="block py-2 text-gray-800 font-medium hover:text-blue-600 transition-colors">{item.label}</a>
-              ))}
-              <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center space-x-2 w-full py-3 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition-colors"><WhatsApp className="w-4 h-4" /><span>WhatsApp</span></a>
-            </div>
-          </motion.div>
-        )}
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="md:hidden bg-white border-t mt-2 pb-4">
+              <div className="container mx-auto px-4 py-4 space-y-4">
+                {navItems.map(item => (
+                  <a key={item.id} href={`#${item.id}`} onClick={() => setIsMenuOpen(false)} className="block py-2 text-gray-800 font-medium hover:text-blue-600 transition-colors">{item.label}</a>
+                ))}
+                <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center space-x-2 w-full py-3 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition-colors"><WhatsApp className="w-4 h-4" /><span>WhatsApp</span></a>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.header>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 md:pt-40 md:pb-28 bg-gradient-to-r from-blue-50 to-indigo-50 relative overflow-hidden">
+      <section id="main-content" className="pt-32 pb-20 md:pt-40 md:pb-28 bg-gradient-to-r from-blue-50 to-indigo-50 relative overflow-hidden">
         <div className="absolute inset-0 -z-10">
           <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
           <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-indigo-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
@@ -419,6 +435,298 @@ export default function App() {
         </div>
       </section>
 
+      {/* World Map Section - Global Availability */}
+      <section className="py-20 bg-gradient-to-b from-indigo-50 to-white relative overflow-hidden">
+        <div className="absolute inset-0 -z-10 opacity-10">
+          <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl animation-delay-2000"></div>
+        </div>
+
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="text-center max-w-3xl mx-auto mb-16"
+          >
+            <div className="inline-block bg-blue-100 text-blue-800 px-4 py-1 rounded-full mb-4 font-medium">
+              <Globe className="inline mr-1 h-4 w-4" />
+              Atendimento Global
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Psicoterapia para brasileiros em qualquer lugar do mundo
+            </h2>
+            <p className="text-lg text-gray-600">
+              Entendemos as particularidades de viver no Brasil ou em outro país. Nossa abordagem considera aspectos culturais, de adaptação e as diferentes realidades que você enfrenta.
+            </p>
+          </motion.div>
+
+          <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-6 md:p-8 mb-16 border border-gray-100">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+              <div>
+                <div className="bg-blue-50 rounded-xl p-6 mb-6 border-l-4 border-blue-500">
+                  <h3 className="text-xl font-bold text-gray-900 mb-3 flex items-center">
+                    <ClockIcon className="mr-3 text-blue-600" />
+                    Fusos Horários
+                  </h3>
+                  <p className="text-gray-700">
+                    Compreendemos que viver em diferentes países significa lidar com fusos horários distintos. Por isso oferecemos horários flexíveis e adaptáveis para melhor atender às suas necessidades.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  {timeZones.map((tz, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                      className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-xl text-center border border-gray-200"
+                    >
+                      <p className="font-bold text-blue-700 text-sm">{tz.name}</p>
+                      <p className="text-2xl font-bold text-gray-900 mt-1">{tz.time}</p>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="relative">
+                <div className="bg-gradient-to-br from-blue-400 to-indigo-600 rounded-2xl h-80 shadow-xl flex items-center justify-center p-8 text-center text-white">
+                  <div>
+                    <Globe className="w-24 h-24 mx-auto mb-6 opacity-90 text-white" />
+                    <h3 className="text-2xl font-bold mb-4">Atendemos globalmente</h3>
+                    <p className="opacity-90 max-w-xs mx-auto">
+                      Não importa onde esteja, nosso atendimento é feito em português com total compreensão da cultura brasileira.
+                    </p>
+                  </div>
+                </div>
+                <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-white rounded-full opacity-30"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Detailed Services */}
+      <section className="py-20 bg-gradient-to-b from-white to-indigo-50">
+        <div className="container mx-auto px-4">
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="text-center max-w-3xl mx-auto mb-16"
+          >
+            <motion.h2
+              variants={itemVariants}
+              className="text-3xl md:text-4xl font-bold text-gray-900 mb-4"
+            >
+              Nossos Serviços
+            </motion.h2>
+            <motion.p
+              variants={itemVariants}
+              className="text-lg text-gray-600"
+            >
+              Abordagens terapêuticas personalizadas para suas necessidades específicas
+            </motion.p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            {detailedServices.map((service, index) => (
+              <motion.div
+                key={index}
+                variants={itemVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                whileHover={{ y: -10 }}
+                className={`bg-white rounded-2xl p-8 shadow-md border border-gray-100 transition-all duration-300 hover:shadow-xl cursor-pointer ${activeService === index ? 'ring-2 ring-blue-500' : ''}`}
+                onClick={() => toggleService(index)}
+              >
+                <div className="flex justify-center mb-6">
+                  <div className="bg-blue-100 p-4 rounded-full">
+                    {service.icon}
+                  </div>
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center">{service.title}</h3>
+                <p className="text-gray-600 text-center mb-4">{service.description}</p>
+
+                <motion.div
+                  initial={false}
+                  animate={{ height: activeService === index ? "auto" : 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="overflow-hidden"
+                >
+                  <p className="text-gray-700 mt-4 text-sm border-t border-gray-200 pt-4">{service.details}</p>
+                </motion.div>
+
+                <div className="flex justify-center mt-4">
+                  <ChevronDown className={`w-5 h-5 text-blue-500 transition-transform duration-300 ${activeService === index ? 'transform rotate-180' : ''}`} />
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Autoconhecimento Section */}
+      <section className="py-20 bg-gradient-to-r from-gray-50 to-white relative overflow-hidden">
+        <div className="absolute inset-0 -z-10">
+          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-30"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-30"></div>
+        </div>
+
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="text-center max-w-4xl mx-auto mb-16"
+          >
+            <div className="inline-block bg-orange-100 text-orange-800 px-4 py-1 rounded-full mb-4 font-medium">
+              <Heart className="inline mr-1 h-4 w-4" />
+              O Longo Caminho do Autoconhecimento
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8">
+              "Quem olha para fora, sonha; quem olha para dentro, acorda."
+            </h2>
+            <p className="text-xl text-gray-700 mb-12 max-w-3xl mx-auto">
+              A psicoterapia não é apenas sobre aliviar sintomas, mas sobre despertar para uma vida mais autêntica.
+              Cada sessão é um convite para olhar para dentro, onde as verdadeiras transformações acontecem.
+            </p>
+          </motion.div>
+
+          <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl p-8 border border-gray-100 overflow-hidden">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              {/* Left side: Looking inward - Awakened version */}
+              <div className="relative">
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-2xl p-8 h-80 flex flex-col items-center justify-center relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-200 to-indigo-200 opacity-50 rounded-2xl"></div>
+                  <div className="relative z-10 text-center">
+                    <div className="w-32 h-32 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                      <User className="w-16 h-16 text-white" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-800 mb-2">Olhar para dentro</h3>
+                    <p className="text-gray-700">A versão desperta de você</p>
+                    <div className="mt-6 flex justify-center">
+                      <div className="flex space-x-2">
+                        <div className="w-3 h-3 bg-yellow-400 rounded-full animate-pulse"></div>
+                        <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse delay-300"></div>
+                        <div className="w-3 h-3 bg-blue-400 rounded-full animate-pulse delay-600"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="absolute -top-4 -left-4 w-20 h-20 bg-yellow-200 rounded-full opacity-30"></div>
+                <div className="absolute -bottom-4 -right-4 w-20 h-20 bg-green-200 rounded-full opacity-30"></div>
+              </div>
+
+              {/* Right side: Looking outward - Dreaming */}
+              <div className="relative">
+                <div className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl p-8 h-80 flex flex-col items-center justify-center relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-r from-pink-100 to-purple-100 opacity-40 rounded-2xl"></div>
+                  <div className="relative z-10 text-center">
+                    <div className="w-32 h-32 bg-gray-300 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                      <User className="w-16 h-16 text-gray-400 opacity-70" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-800 mb-2">Olhar para fora</h3>
+                    <p className="text-gray-700">A versão sonhada de você</p>
+                    <div className="mt-6 flex justify-center space-x-4">
+                      <div className="w-8 h-8 bg-pink-300 rounded-full opacity-70 animate-bounce"></div>
+                      <div className="w-8 h-8 bg-purple-300 rounded-full opacity-70 animate-bounce delay-300"></div>
+                      <div className="w-8 h-8 bg-blue-300 rounded-full opacity-70 animate-bounce delay-600"></div>
+                    </div>
+                  </div>
+                </div>
+                <div className="absolute -top-4 -right-4 w-20 h-20 bg-pink-200 rounded-full opacity-30"></div>
+                <div className="absolute -bottom-4 -left-4 w-20 h-20 bg-purple-200 rounded-full opacity-30"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* A Coragem de Sentir Section */}
+      <section className="py-20 bg-gradient-to-br from-gray-900 to-gray-800 text-white relative overflow-hidden">
+        <div className="absolute inset-0 -z-10 opacity-20">
+          <div className="absolute top-1/3 left-1/3 w-96 h-96 bg-red-600 rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-1/3 right-1/4 w-96 h-96 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl animation-delay-2000"></div>
+        </div>
+
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="text-center max-w-4xl mx-auto mb-16"
+          >
+            <div className="inline-block bg-red-800 text-red-200 px-4 py-1 rounded-full mb-4 font-medium">
+              <Heart className="inline mr-1 h-4 w-4" />
+              A Coragem de Sentir
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold mb-8">
+              "Sentimentos reprimidos nunca morrem. Eles são enterrados vivos e voltarão mais tarde de maneiras mais feias."
+            </h2>
+            <p className="text-xl text-gray-200 mb-12 max-w-3xl mx-auto">
+              A terapia não é sobre esconder suas emoções, mas sobre aprender a acolhê-las.
+              Cada sentimento, por mais difícil que seja, merece ser visto, ouvido e compreendido.
+            </p>
+          </motion.div>
+
+          <div className="max-w-5xl mx-auto bg-gray-800 rounded-2xl shadow-2xl p-8 border border-gray-700 overflow-hidden relative">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              {/* Left side: Visual representation */}
+              <div className="relative">
+                <div className="bg-gradient-to-br from-gray-700 to-gray-900 rounded-2xl p-8 h-80 flex flex-col items-center justify-center relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-r from-red-900/30 to-purple-900/30 rounded-2xl"></div>
+
+                  {/* Chest */}
+                  <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 w-48 h-32 bg-gradient-to-b from-amber-800 to-amber-900 rounded-lg shadow-lg border-2 border-amber-700">
+                    <div className="w-full h-1/3 bg-amber-700 rounded-t-lg border-b-2 border-amber-600"></div>
+                    <div className="w-full h-2 bg-amber-600 absolute top-1/3 left-0"></div>
+                  </div>
+
+                  {/* Person */}
+                  <div className="absolute top-1/4 left-1/2 transform -translate-x-1/2 w-20 h-32 bg-gradient-to-b from-gray-600 to-gray-800 rounded-full flex flex-col items-center">
+                    <div className="w-16 h-16 bg-gradient-to-b from-amber-300 to-amber-400 rounded-full mt-4 border-2 border-amber-500"></div>
+                  </div>
+
+                  {/* Emotions escaping */}
+                  <div className="absolute bottom-12 left-1/4 w-12 h-12 bg-red-500 rounded-full opacity-80 animate-bounce"></div>
+                  <div className="absolute bottom-12 left-1/2 w-8 h-8 bg-purple-500 rounded-full opacity-80 animate-bounce"></div>
+                  <div className="absolute bottom-12 right-1/4 w-10 h-10 bg-blue-500 rounded-full opacity-80 animate-bounce"></div>
+                </div>
+                <div className="absolute -top-4 -left-4 w-20 h-20 bg-red-800 rounded-full opacity-30"></div>
+                <div className="absolute -bottom-4 -right-4 w-20 h-20 bg-purple-800 rounded-full opacity-30"></div>
+              </div>
+
+              {/* Right side: Explanation */}
+              <div className="space-y-6">
+                <h3 className="text-2xl font-bold text-white">A terapia como libertação</h3>
+                <p className="text-gray-300 leading-relaxed">
+                  Nossa abordagem psicanalítica cria um espaço seguro para que você possa enfrentar,
+                  compreender e transformar os sentimentos que tenta esconder.
+                  Em vez de aprisionar suas emoções, aprendemos a acolhê-las.
+                </p>
+                <p className="text-gray-300 leading-relaxed">
+                  A coragem de sentir é o primeiro passo para a cura.
+                  Não se trata de eliminar o sofrimento, mas de compreendê-lo,
+                  para que ele deixe de controlar sua vida.
+                </p>
+                <div className="bg-red-900/30 border border-red-700 rounded-lg p-4">
+                  <p className="text-red-200 italic">"Cada sentimento reprimido é uma parte de você que pede por atenção.
+                    A terapia é o espaço onde isso pode acontecer com segurança."</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* About Section */}
       <section id="about" className="py-20 bg-white">
         <div className="container mx-auto px-4">
@@ -455,45 +763,46 @@ export default function App() {
             <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
               <div className="bg-gradient-to-r from-blue-600 to-indigo-700 p-6 text-white">
                 <div className="flex justify-between items-center"><span className="font-bold">Pergunta {currentQuestion + 1} de 8</span><div className="flex space-x-1">{[...Array(8)].map((_, idx) => (<div key={idx} className={`w-2 h-2 rounded-full ${idx <= currentQuestion ? 'bg-white' : 'bg-blue-200'}`}></div>))}</div></div>
-                <div className="p-6 md:p-8">
-                  <h3 className="text-xl font-bold text-gray-900 mb-6">{currentQuestion + 1}. {[
-                    "Nas últimas 2 semanas, com que frequência você se sentiu triste ou deprimido?",
-                    "Você tem sentido dificuldade em concentrar-se em tarefas diárias?",
-                    "Com que frequência você se sente ansioso ou preocupado excessivamente?",
-                    "Você tem tido dificuldade para dormir (insônia ou sono excessivo)?",
-                    "Você sente que perdeu o interesse em atividades que antes gostava?",
-                    "Você se sente sobrecarregado(a) com as responsabilidades diárias?",
-                    "Você tem sentido dificuldade em manter relacionamentos saudáveis?",
-                    "Você sente que sua autoestima está baixa ultimamente?"
-                  ][currentQuestion]}</h3>
-                  <div className="space-y-4 mb-8">
-                    {[['Nunca', 0], ['Alguns dias / Raramente', 1], ['Mais da metade dos dias / Frequentemente', 2], ['Quase todos os dias / Sempre', 3]].map(([txt, val]) => (
-                      <motion.button key={txt} whileTap={{ scale: 0.95 }} onClick={() => handleAnswer(currentQuestion, val)} className={`w-full text-left p-4 rounded-xl border transition-all ${answers[currentQuestion] === val ? "border-blue-500 bg-blue-50 ring-2 ring-blue-500" : "border-gray-200 hover:border-blue-300 hover:bg-blue-50"}`}>{txt}</motion.button>
-                    ))}
-                  </div>
-                  <div className="flex justify-between pt-4 border-t border-gray-100">
-                    <button onClick={prevQuestion} disabled={currentQuestion === 0} className={`px-6 py-3 rounded-xl font-medium flex items-center ${currentQuestion === 0 ? "text-gray-400 cursor-not-allowed" : "text-blue-600 hover:bg-blue-50"}`}><ArrowLeft className="mr-2 h-4 w-4" />Anterior</button>
-                    {currentQuestion < 7 ? (
-                      <button onClick={nextQuestion} disabled={answers[currentQuestion] === null} className={`px-6 py-3 rounded-xl font-medium flex items-center ${answers[currentQuestion] === null ? "bg-gray-300 cursor-not-allowed" : "bg-blue-600 text-white hover:bg-blue-700"}`}>Próxima<ArrowRight className="ml-2 h-4 w-4" /></button>
-                    ) : (
-                      <button onClick={submitTest} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="px-6 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 transition-colors flex items-center">Ver Resultado<ArrowRight className="ml-2 h-4 w-4" /></button>
-                    )}
-                  </div>
+              </div>
+              <div className="p-6 md:p-8">
+                <h3 className="text-xl font-bold text-gray-900 mb-6">{currentQuestion + 1}. {[
+                  "Nas últimas 2 semanas, com que frequência você se sentiu triste ou deprimido?",
+                  "Você tem sentido dificuldade em concentrar-se em tarefas diárias?",
+                  "Com que frequência você se sente ansioso ou preocupado excessivamente?",
+                  "Você tem tido dificuldade para dormir (insônia ou sono excessivo)?",
+                  "Você sente que perdeu o interesse em atividades que antes gostava?",
+                  "Você se sente sobrecarregado(a) com as responsabilidades diárias?",
+                  "Você tem sentido dificuldade em manter relacionamentos saudáveis?",
+                  "Você sente que sua autoestima está baixa ultimamente?"
+                ][currentQuestion]}</h3>
+                <div className="space-y-4 mb-8">
+                  {[['Nunca', 0], ['Alguns dias / Raramente', 1], ['Mais da metade dos dias / Frequentemente', 2], ['Quase todos os dias / Sempre', 3]].map(([txt, val]) => (
+                    <motion.button key={txt} whileTap={{ scale: 0.95 }} onClick={() => handleAnswer(currentQuestion, val)} className={`w-full text-left p-4 rounded-xl border transition-all ${answers[currentQuestion] === val ? "border-blue-500 bg-blue-50 ring-2 ring-blue-500" : "border-gray-200 hover:border-blue-300 hover:bg-blue-50"}`}>{txt}</motion.button>
+                  ))}
+                </div>
+                <div className="flex justify-between pt-4 border-t border-gray-100">
+                  <button onClick={prevQuestion} disabled={currentQuestion === 0} className={`px-6 py-3 rounded-xl font-medium flex items-center ${currentQuestion === 0 ? "text-gray-400 cursor-not-allowed" : "text-blue-600 hover:bg-blue-50"}`}><ArrowLeft className="mr-2 h-4 w-4" />Anterior</button>
+                  {currentQuestion < 7 ? (
+                    <button onClick={nextQuestion} disabled={answers[currentQuestion] === null} className={`px-6 py-3 rounded-xl font-medium flex items-center ${answers[currentQuestion] === null ? "bg-gray-300 cursor-not-allowed" : "bg-blue-600 text-white hover:bg-blue-700"}`}>Próxima<ArrowRight className="ml-2 h-4 w-4" /></button>
+                  ) : (
+                    <motion.button onClick={submitTest} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="px-6 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 transition-colors flex items-center">Ver Resultado<ArrowRight className="ml-2 h-4 w-4" /></motion.button>
+                  )}
                 </div>
               </div>
-              ) : (
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 p-8 text-center">
-                <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6"><Check className="w-8 h-8 text-green-600" /></div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">Resultado do Teste</h3>
-                <p className="text-lg text-gray-700 mb-6">{calculateResult()}</p>
-                <div className="bg-blue-50 rounded-xl p-6 mb-8"><p className="text-gray-700 italic">Este teste oferece uma avaliação preliminar e não substitui uma consulta com um profissional de saúde mental. Recomendamos agendar uma sessão para uma avaliação completa e personalizada.</p></div>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={resetTest} className="px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors">Fazer Novo Teste</button>
-                  <a href={whatsappLink} target="_blank" rel="noopener noreferrer" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="px-6 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 transition-colors flex items-center justify-center"><WhatsApp className="mr-2 h-5 w-5" />Agendar Consulta</a>
-                </div>
-              </motion.div>
-          )}
             </div>
+          ) : (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 p-8 text-center">
+              <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6"><Check className="w-8 h-8 text-green-600" /></div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Resultado do Teste</h3>
+              <p className="text-lg text-gray-700 mb-6">{calculateResult()}</p>
+              <div className="bg-blue-50 rounded-xl p-6 mb-8"><p className="text-gray-700 italic">Este teste oferece uma avaliação preliminar e não substitui uma consulta com um profissional de saúde mental. Recomendamos agendar uma sessão para uma avaliação completa e personalizada.</p></div>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={resetTest} className="px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors">Fazer Novo Teste</motion.button>
+                <motion.a href={whatsappLink} target="_blank" rel="noopener noreferrer" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="px-6 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 transition-colors flex items-center justify-center"><WhatsApp className="mr-2 h-5 w-5" />Agendar Consulta</motion.a>
+              </div>
+            </motion.div>
+          )}
+        </div>
       </section>
 
       {/* FAQ Section */}
@@ -507,8 +816,8 @@ export default function App() {
           <div className="max-w-3xl mx-auto">
             {faqs.map((faq, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.1 }} className={`mb-4 border ${activeFaq === i ? 'border-blue-500' : 'border-gray-200'} rounded-xl overflow-hidden`} whileHover={{ scale: 1.01 }}>
-                <button onClick={() => toggleFaq(i)} className={`w-full flex justify-between items-center p-6 text-left ${activeFaq === i ? 'bg-blue-50' : 'bg-gray-50 hover:bg-gray-100'} transition-colors`}><span className={`text-lg font-medium ${activeFaq === i ? 'text-blue-700' : 'text-gray-900'}`}>{faq.question}</span>{activeFaq === i ? <ChevronUp className="w-6 h-6 text-blue-600" /> : <ChevronDown className="w-6 h-6 text-gray-400" />}</button>
-                <AnimatePresence>{activeFaq === i && (<motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="px-6 pb-6 pt-2 text-gray-600">{faq.answer}</motion.div>)}</AnimatePresence>
+                <button onClick={() => toggleFaq(i)} aria-expanded={activeFaq === i} aria-controls={`faq-answer-${i}`} className={`w-full flex justify-between items-center p-6 text-left ${activeFaq === i ? 'bg-blue-50' : 'bg-gray-50 hover:bg-gray-100'} transition-colors`}><span className={`text-lg font-medium ${activeFaq === i ? 'text-blue-700' : 'text-gray-900'}`}>{faq.question}</span>{activeFaq === i ? <ChevronUp className="w-6 h-6 text-blue-600" /> : <ChevronDown className="w-6 h-6 text-gray-400" />}</button>
+                <AnimatePresence>{activeFaq === i && (<motion.div id={`faq-answer-${i}`} initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="px-6 pb-6 pt-2 text-gray-600">{faq.answer}</motion.div>)}</AnimatePresence>
               </motion.div>
             ))}
           </div>
@@ -548,15 +857,16 @@ export default function App() {
             <div className="inline-block bg-yellow-100 text-yellow-800 px-4 py-1 rounded-full mb-4 font-medium"><Star className="inline mr-1 h-4 w-4" />Depoimentos</div>
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">O que meus clientes dizem</h2>
             <p className="text-lg text-gray-600">Experiências reais de brasileiros atendidos no Brasil e no exterior</p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-              {testimonials.map((t, i) => (
-                <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: i * 0.2 }} className="bg-white p-8 rounded-2xl shadow-md border border-gray-100 hover:shadow-xl transition-all duration-300">
-                  <div className="flex mb-4">{Array(t.rating).fill().map((_, j) => (<Star key={j} className="w-5 h-5 text-yellow-400 fill-current" />))}</div>
-                  <p className="text-gray-700 mb-6 italic">{t.text}</p>
-                  <div className="flex items-center"><img src={t.image} alt={t.name} className="w-12 h-12 rounded-full mr-4 object-cover border-2 border-gray-200" /><div><p className="font-bold text-gray-900">{t.name}</p><p className="text-sm text-blue-600">{t.location}</p></div></div>
-                </motion.div>
-              ))}
-            </div>
+          </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {testimonials.map((t, i) => (
+              <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: i * 0.2 }} className="bg-white p-8 rounded-2xl shadow-md border border-gray-100 hover:shadow-xl transition-all duration-300">
+                <div className="flex mb-4">{Array(t.rating).fill().map((_, j) => (<Star key={j} className="w-5 h-5 text-yellow-400 fill-current" />))}</div>
+                <p className="text-gray-700 mb-6 italic">{t.text}</p>
+                <div className="flex items-center"><img src={t.image} alt={t.name} className="w-12 h-12 rounded-full mr-4 object-cover border-2 border-gray-200" /><div><p className="font-bold text-gray-900">{t.name}</p><p className="text-sm text-blue-600">{t.location}</p></div></div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section >
 
