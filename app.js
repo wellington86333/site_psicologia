@@ -189,9 +189,27 @@ export default function App() {
   ];
 
   const testimonials = [
-    { name: "Ana L.", location: "São Paulo, Brasil", text: "As sessões com o Wellington me ajudaram a lidar com a ansiedade que estava afetando meu trabalho e relacionamentos. A abordagem dele é acolhedora e profissional.", image: "https://ui-avatars.com/api/?name=Ana+L&background=4F46E5&color=fff", rating: 5 },
-    { name: "Ricardo M.", location: "Lisboa, Portugal", text: "Morando fora do Brasil há 3 anos, sentia muita dificuldade de adaptação e saudade. O Wellington entende perfeitamente os desafios de viver no exterior e me ajudou a encontrar meu equilíbrio.", image: "https://ui-avatars.com/api/?name=Ricardo+M&background=1F2937&color=fff", rating: 5 },
-    { name: "Camila T.", location: "Nova York, EUA", text: "Encontrei no Wellington um profissional que compreende minha realidade como brasileira morando no exterior. As sessões online são tão eficazes quanto as presenciais e os horários flexíveis facilitam muito.", image: "https://ui-avatars.com/api/?name=Camila+T&background=059669&color=fff", rating: 5 }
+    {
+      name: "Ana L.",
+      location: "São Paulo, Brasil",
+      text: "As sessões com o Wellington me ajudaram a lidar com a ansiedade que estava afetando meu trabalho e relacionamentos. A abordagem dele é acolhedora e profissional.",
+      rating: 5,
+      image: "https://ui-avatars.com/api/?name=Ana+L&background=4F46E5&color=fff&size=100",
+    },
+    {
+      name: "Ricardo M.",
+      location: "Lisboa, Portugal",
+      text: "Morando fora do Brasil há 3 anos, sentia muita dificuldade de adaptação e saudade. O Wellington entende perfeitamente os desafios de viver no exterior e me ajudou a encontrar meu equilíbrio.",
+      rating: 5,
+      image: "https://ui-avatars.com/api/?name=Ricardo+M&background=1F2937&color=fff&size=100",
+    },
+    {
+      name: "Camila T.",
+      location: "Nova York, EUA",
+      text: "Encontrei no Wellington um profissional que compreende minha realidade como brasileira morando no exterior. As sessões online são tão eficazes quanto as presenciais e os horários flexíveis facilitam muito.",
+      rating: 5,
+      image: "https://ui-avatars.com/api/?name=Camila+T&background=059669&color=fff&size=100",
+    }
   ];
 
   const containerVariants = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.1 } } };
@@ -252,8 +270,15 @@ export default function App() {
       {/* Header */}
       <motion.header style={{ opacity: headerOpacity }} className={`fixed w-full z-30 transition-all duration-300 ${scrolled ? 'bg-white shadow-md py-2' : 'bg-transparent py-4'}`}>
         <div className="container mx-auto px-4 flex justify-between items-center">
-          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }} className="flex items-center space-x-2">
-            <div className="bg-blue-600 p-2 rounded-lg"><Brain className="w-6 h-6 text-white" /></div>
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+            className="flex items-center space-x-2"
+          >
+            <div className="bg-blue-600 p-2 rounded-lg">
+              <Brain className="w-6 h-6 text-white" />
+            </div>
             <span className={`text-xl font-bold ${scrolled ? 'text-gray-800' : 'text-white'} transition-colors`}>Wellington Brito PSI</span>
           </motion.div>
           <nav className="hidden md:flex space-x-8">
@@ -283,19 +308,88 @@ export default function App() {
           <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-indigo-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
           <div className="absolute bottom-1/4 left-1/3 w-64 h-64 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
         </div>
-        <div className="container mx-auto px-4 text-center relative z-10">
-          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">Cuidar da sua mente <span className="text-blue-600">é essencial</span> para viver bem</motion.h1>
-          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="text-xl md:text-2xl text-gray-700 max-w-3xl mx-auto mb-10">Wellington Brito | CRP 02/15189</motion.p>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.4 }} className="bg-white rounded-2xl shadow-xl p-6 md:p-8 max-w-2xl mx-auto mb-10 border border-gray-100">
-            <p className="text-lg text-gray-700 mb-6 text-left">{heroText.split(' ').map((word, i) => (
-              <motion.span key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.5 + i * 0.02 }} className={`inline-block mr-1 ${i === 8 || i === 13 ? 'text-blue-600 font-bold' : ''}`}>{word}</motion.span>
-            ))}</p>
-            <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <a href="#test" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-xl transition-colors flex items-center justify-center transform hover:scale-105 shadow-lg"><MessageSquare className="mr-2 h-5 w-5" />Teste Gratuito</a>
-              <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-6 rounded-xl transition-colors flex items-center justify-center transform hover:scale-105 shadow-lg"><WhatsApp className="mr-2 h-5 w-5" />Agendar Consulta</a>
+
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            {/* Left Column - Text Content */}
+            <div className="text-center md:text-left">
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+                className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6"
+              >
+                Cuidar da sua mente <span className="text-blue-600">é essencial</span> para viver bem
+              </motion.h1>
+
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                className="text-xl md:text-2xl text-gray-700 mb-10"
+              >
+                Wellington Brito | CRP 02/15189
+              </motion.p>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.4 }}
+                className="bg-white rounded-2xl shadow-xl p-6 md:p-8 mb-10 border border-gray-100"
+              >
+                <p className="text-lg text-gray-700 mb-6 text-left">
+                  {heroText.split(' ').map((word, i) => (
+                    <motion.span
+                      key={i}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4, delay: 0.5 + i * 0.02 }}
+                      className={`inline-block mr-1 ${i === 8 || i === 13 ? 'text-blue-600 font-bold' : ''}`}
+                    >
+                      {word}
+                    </motion.span>
+                  ))}
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                  <a href="#test" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-xl transition-colors flex items-center justify-center transform hover:scale-105 shadow-lg">
+                    <MessageSquare className="mr-2 h-5 w-5" />
+                    Teste Gratuito de Saúde Mental
+                  </a>
+                  <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-6 rounded-xl transition-colors flex items-center justify-center transform hover:scale-105 shadow-lg">
+                    <WhatsApp className="mr-2 h-5 w-5" />
+                    Agendar Consulta
+                  </a>
+                </div>
+              </motion.div>
             </div>
+
+            {/* Right Column - Professional Photo */}
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="relative"
+            >
+              <div className="relative rounded-2xl shadow-2xl overflow-hidden">
+                <img
+                  src="./wellington-brito.jpg"
+                  alt="Psicólogo Wellington Brito"
+                  className="w-full h-[500px] object-cover"
+                />
+              </div>
+              <div className="absolute -bottom-6 -right-6 w-40 h-40 bg-blue-200 rounded-full opacity-40"></div>
+              <div className="absolute -top-6 -left-6 w-32 h-32 bg-indigo-200 rounded-full opacity-40"></div>
+            </motion.div>
+          </div>
+
+          {/* Scroll Indicator */}
+          <motion.div
+            animate={{ y: [0, 10, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+            className="mt-16 mx-auto w-8 h-12 border-2 border-blue-600 rounded-full flex items-center justify-center text-blue-600"
+          >
+            <ChevronDown className="w-6 h-6" />
           </motion.div>
-          <motion.div animate={{ y: [0, 10, 0] }} transition={{ duration: 1.5, repeat: Infinity }} className="mt-8 mx-auto w-8 h-12 border-2 border-blue-600 rounded-full flex items-center justify-center text-blue-600"><ChevronDown className="w-6 h-6" /></motion.div>
         </div>
       </section>
 
@@ -303,7 +397,11 @@ export default function App() {
       <section id="services" className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Por que escolher Wellington Brito PSI?</h2>
+            <motion.h2
+              variants={itemVariants}
+              className="text-3xl md:text-4xl font-bold text-gray-900 mb-4"
+            >
+              Por que escolher Wellington Brito PSI?</motion.h2>
             <p className="text-lg text-gray-600">Oferecemos um atendimento completo com foco no seu bem-estar emocional</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -467,7 +565,12 @@ export default function App() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
-              <div className="flex items-center space-x-2 mb-4"><div className="bg-blue-600 p-2 rounded-lg"><Brain className="w-6 h-6 text-white" /></div><span className="text-xl font-bold">Wellington Brito PSI</span></div>
+              <div className="flex items-center space-x-2 mb-4">
+                <div className="bg-blue-600 p-2 rounded-lg">
+                  <Brain className="w-6 h-6 text-white" />
+                </div>
+                <span className="text-xl font-bold">Wellington Brito PSI</span>
+              </div>
               <p className="text-gray-300 mb-4">Cuidando da sua saúde mental com profissionalismo, empatia e confidencialidade total. Psicoterapia online de qualidade para transformar sua vida.</p>
               <div className="flex space-x-4"><a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="bg-green-500 hover:bg-green-600 text-white p-3 rounded-full transition-colors shadow-lg hover:scale-110"><WhatsApp className="w-6 h-6" /></a><button onClick={() => setIsChatOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full transition-colors shadow-lg hover:scale-110"><Bot className="w-6 h-6" /></button></div>
             </div>
